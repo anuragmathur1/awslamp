@@ -15,7 +15,7 @@ Parameters:
       - prod
 
 Resources:
-  wpvpc:
+  vpc:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock:
@@ -36,3 +36,60 @@ Resources:
             - - LAMP
               - 'VPC'
               - !Ref env
+
+  privatesubneta:
+    DependsOn: vpc
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref vpc
+      MapPublicIpOnLaunch: false
+      CidrBlock:
+        !Join
+          - ''
+          - - !Ref vpcCidrBase
+            - '4'
+            - '.0/24'
+      AvailabilityZone: !Select [ 0, !GetAZs ]    # Get the first AZ in the list
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}-Private-A
+      - Key: app
+        Value: wordpress
+
+  privatesubnetb:
+    DependsOn: vpc
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref vpc
+      MapPublicIpOnLaunch: false
+      CidrBlock:
+        !Join
+          - ''
+          - - !Ref vpcCidrBase
+            - '5'
+            - '.0/24'
+      AvailabilityZone: !Select [ 1, !GetAZs ]    # Get the second AZ in the list
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}-Private-B
+      - Key: app
+        Value: wordpress
+
+  privatesubnetc:
+    DependsOn: vpc
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref vpc
+      MapPublicIpOnLaunch: false
+      CidrBlock:
+        !Join
+          - ''
+          - - !Ref vpcCidrBase
+            - '6'
+            - '.0/24'
+      AvailabilityZone: !Select [ 2, !GetAZs ]    # Get the third AZ in the list
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}-Private-C
+      - Key: app
+        Value: wordpress
