@@ -384,3 +384,67 @@ Resources:
       Roles:
         -
           Ref: "InstanceRole"
+
+## lamp RDS Subnet Group and Instance
+  rdssg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: lamp RDS SecurityGroup
+      GroupName: rdssg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: !GetAtt vpc.CidrBlock
+          IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+      Tags:
+        - Key: Name
+          Value: rdssg
+        - Key: app
+          Value: lamp
+      VpcId:
+        Ref: vpc
+
+  dbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "lamp DB Subnet Group"
+      DBSubnetGroupName: "dbsubnetgroup"
+      SubnetIds:
+        - !Ref privatesubneta
+        - !Ref privatesubnetb
+        - !Ref privatesubnetc
+      Tags:
+        - Key: Name
+          Value: dbSubnetGroup
+        - Key: app
+          Value: lamp
+
+  db:
+    DependsOn:
+      - dbSubnetGroup
+      - rdssg
+    Type: AWS::RDS::DBInstance
+    Properties:
+      MultiAZ: true
+      DBInstanceIdentifier: !Sub
+        - lamp-${envtype}
+        - { envtype: !Ref env }
+      DBInstanceClass: db.t2.large
+      SourceRegion: ap-southeast-2
+      DBSubnetGroupName: "dbsubnetgroup"
+      VPCSecurityGroups:
+        - !Ref rdssg
+      AllocatedStorage: 20
+      DBName: '{{resolve:ssm:dbname:1}}'
+      Engine: MySQL
+      EngineVersion: "5.7.22"
+      MasterUserPassword: '{{resolve:ssm-secure:dbpasswd:1}}'
+      MasterUsername: '{{resolve:ssm:dbuser:1}}'
+      Tags:
+        - Key: Name
+          Value: db
+        - Key: app
+          Value: lamp
