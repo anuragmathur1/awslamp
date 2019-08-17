@@ -271,3 +271,92 @@ Resources:
        Icmp:
           Code: "-1"
           Type: "-1"
+
+  PublicSubnetaNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+          Ref: publicsubneta
+      NetworkAclId:
+          Ref: networkpublicacl
+
+  PublicSubnetbNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+          Ref: publicsubnetb
+      NetworkAclId:
+          Ref: networkpublicacl
+
+  PublicSubnetcNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+          Ref: publicsubnetc
+      NetworkAclId:
+          Ref: networkpublicacl
+
+### Private ACL and subnet Associations
+
+  networkprivateacl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+       VpcId:
+         Ref: vpc
+       Tags:
+       - Key: Name
+         Value: networkprivateacl
+       - Key: app
+         Value: lamp
+
+  networkprivateaclegressentry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+       NetworkAclId:
+          Ref: networkprivateacl
+       RuleNumber: '100'
+       Protocol: "-1"
+       RuleAction: allow
+       Egress: 'true'
+       CidrBlock: 0.0.0.0/0
+       Icmp:
+          Code: "-1"
+          Type: "-1"
+
+  networkprivateaclingressentry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+       NetworkAclId:
+          Ref: networkprivateacl
+       RuleNumber: '100'
+       Protocol: "-1"
+       RuleAction: allow
+       Egress: 'false'
+       CidrBlock: 0.0.0.0/0
+       Icmp:
+          Code: "-1"
+          Type: "-1"
+
+  PrivateSubnetaNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+          Ref: privatesubneta
+      NetworkAclId:
+          Ref: networkprivateacl
+
+  PrivateSubnetbNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+          Ref: privatesubnetc
+      NetworkAclId:
+          Ref: networkprivateacl
+
+  PrivateSubnetcNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+          Ref: privatesubnetc
+      NetworkAclId:
+          Ref: networkprivateacl
