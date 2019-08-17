@@ -13,6 +13,8 @@ Parameters:
     AllowedValues:
       - dev
       - prod
+  userdata:
+    Type: String
 
 Resources:
   vpc:
@@ -448,3 +450,136 @@ Resources:
           Value: db
         - Key: app
           Value: lamp
+
+
+## lamp ASG , LaunchConfig, SecurityGroup
+
+  albsg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: lamp Instance SecurityGroup
+      GroupName: albsg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+      Tags:
+        - Key: Name
+          Value: albsg
+        - Key: app
+          Value: lamp
+      VpcId:
+        Ref: vpc
+
+  instancesg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: lamp Instance SecurityGroup
+      GroupName: instancesg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+      Tags:
+        - Key: Name
+          Value: instancesg
+        - Key: app
+          Value: lamp
+      VpcId:
+        Ref: vpc
+
+  instancealb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: instancealb
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref albsg
+      Subnets:
+        - !Ref publicsubneta
+        - !Ref publicsubnetb
+        - !Ref publicsubnetc
+      Tags:
+        - Key: Name
+          Value: instancealb
+        - Key: app
+          Value: lamp
+
+  albtg:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 15
+      HealthCheckPath: '/'
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 10
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      Matcher:
+        HttpCode: '200-299'
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref vpc
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: 60
+
+  alblistener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            !Ref albtg
+          Type: forward
+      LoadBalancerArn:
+        !Ref instancealb
+      Port: 80
+      Protocol: HTTP
+
+  serverasg:
+    Type : AWS::AutoScaling::AutoScalingGroup
+    DependsOn: db
+    DependsOn:
+      - instancesg
+      - albsg
+    Properties:
+      VPCZoneIdentifier:
+        - Ref: publicsubneta
+        - Ref: publicsubnetb
+        - Ref: publicsubnetc
+      # AvailabilityZones:
+      #   Fn::GetAZs:
+      #     Ref: "AWS::Region"
+      DesiredCapacity: 1
+      MaxSize: 2
+      MinSize: 1
+      TargetGroupARNs:
+        - !Ref albtg
+      LaunchConfigurationName:
+        Ref: serverlaunchconfig
+      Tags:
+        - Key: Name
+          Value: instance
+          PropagateAtLaunch: true
+        - Key: app
+          Value: lamp
+          PropagateAtLaunch: true
+
+  serverlaunchconfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: "ami-0dc96254d5535925f"
+      KeyName: aws1
+      SecurityGroups:
+        - Ref: instancesg
+      InstanceType: "t2.micro"
+      UserData:
+        Fn::Base64:
+          Ref: userdata

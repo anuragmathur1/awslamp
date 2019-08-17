@@ -4,3 +4,7 @@
   ParameterValue: '0'
 - ParameterKey: env
   ParameterValue: 'dev'
+- ParameterKey: userdata
+  ParameterValue: |
+    #!/bin/bash
+    sudo yum install -y jq httpd
