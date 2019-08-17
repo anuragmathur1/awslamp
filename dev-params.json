@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "vpcCidrBase",
+        "ParameterValue": "10.1."
+    },
+    {
+        "ParameterKey": "subnetStart",
+        "ParameterValue": "0"
+    },
+    {
+        "ParameterKey": "env",
+        "ParameterValue": "dev"
+    }
+]
