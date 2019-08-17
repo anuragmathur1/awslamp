@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Lamp template for Multiple Environments defined in Parameters"
+
+Resources:
+  wpvpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+       - Key: app
+         Value: wordpress
+       - Key: Name
+         Value: Lamp-VPC-Dev
