@@ -28,7 +28,7 @@ Resources:
       EnableDnsHostnames: 'true'
       Tags:
        - Key: app
-         Value: wordpress
+         Value: lamp
        - Key: Name
          Value:
           !Join
@@ -54,7 +54,7 @@ Resources:
       - Key: Name
         Value: !Sub ${AWS::StackName}-Private-A
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   privatesubnetb:
     DependsOn: vpc
@@ -73,7 +73,7 @@ Resources:
       - Key: Name
         Value: !Sub ${AWS::StackName}-Private-B
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   privatesubnetc:
     DependsOn: vpc
@@ -92,7 +92,7 @@ Resources:
       - Key: Name
         Value: !Sub ${AWS::StackName}-Private-C
       - Key: app
-        Value: wordpress
+        Value: lamp
 
 
   publicsubneta:
@@ -112,7 +112,7 @@ Resources:
       - Key: Name
         Value: !Sub ${AWS::StackName}-Public-A
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   publicsubnetb:
     DependsOn: vpc
@@ -131,7 +131,7 @@ Resources:
       - Key: Name
         Value: !Sub ${AWS::StackName}-Public-B
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   publicsubnetc:
     DependsOn: vpc
@@ -150,7 +150,7 @@ Resources:
       - Key: Name
         Value: !Sub ${AWS::StackName}-Public-C
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   internetgateway:
     DependsOn : vpc
@@ -158,9 +158,9 @@ Resources:
     Properties:
       Tags:
       - Key: Name
-        Value: wordpress-IG
+        Value: lamp-IG
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   attachgateway:
     DependsOn: internetgateway
@@ -179,7 +179,7 @@ Resources:
       - Key: Name
         Value: publicroutetable
       - Key: app
-        Value: wordpress
+        Value: lamp
 
   defaultpublicroute:
     Type: AWS::EC2::Route
@@ -206,3 +206,31 @@ Resources:
     Properties:
       RouteTableId: !Ref publicroutetable
       SubnetId: !Ref publicsubnetc
+
+  privateroutetable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref vpc
+      Tags:
+      - Key: Name
+        Value: privateroutetable
+      - Key: app
+        Value: lamp
+
+  privatesubnetaroutetableassociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref privateroutetable
+      SubnetId: !Ref privatesubneta
+
+  privatesubnetbroutetableassociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref privateroutetable
+      SubnetId: !Ref privatesubnetb
+
+  privatesubnetcroutetableassociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref privateroutetable
+      SubnetId: !Ref privatesubnetc
