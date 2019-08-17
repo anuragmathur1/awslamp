@@ -93,3 +93,98 @@ Resources:
         Value: !Sub ${AWS::StackName}-Private-C
       - Key: app
         Value: wordpress
+
+
+  publicsubneta:
+    DependsOn: vpc
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref vpc
+      MapPublicIpOnLaunch: true
+      CidrBlock:
+        !Join
+          - ''
+          - - !Ref vpcCidrBase
+            - '1'
+            - '.0/24'
+      AvailabilityZone: !Select [ 0, !GetAZs ]    # Get the first AZ in the list
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}-Public-A
+      - Key: app
+        Value: wordpress
+
+  publicsubnetb:
+    DependsOn: vpc
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref vpc
+      MapPublicIpOnLaunch: true
+      CidrBlock:
+        !Join
+          - ''
+          - - !Ref vpcCidrBase
+            - '2'
+            - '.0/24'
+      AvailabilityZone: !Select [ 1, !GetAZs ]    # Get the first AZ in the list
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}-Public-B
+      - Key: app
+        Value: wordpress
+
+  publicsubnetc:
+    DependsOn: vpc
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref vpc
+      MapPublicIpOnLaunch: true
+      CidrBlock:
+        !Join
+          - ''
+          - - !Ref vpcCidrBase
+            - '3'
+            - '.0/24'
+      AvailabilityZone: !Select [ 2, !GetAZs ]    # Get the first AZ in the list
+      Tags:
+      - Key: Name
+        Value: !Sub ${AWS::StackName}-Public-C
+      - Key: app
+        Value: wordpress
+
+  internetgateway:
+    DependsOn : vpc
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: wordpress-IG
+      - Key: app
+        Value: wordpress
+
+  attachgateway:
+    DependsOn: internetgateway
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+         Ref: vpc
+      InternetGatewayId:
+         Ref: internetgateway
+
+  publicroutetable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref vpc
+      Tags:
+      - Key: Name
+        Value: publicroutetable
+      - Key: app
+        Value: wordpress
+
+  defaultpublicroute:
+    Type: AWS::EC2::Route
+    DependsOn: attachgateway
+    Properties:
+      RouteTableId: !Ref publicroutetable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref internetgateway
