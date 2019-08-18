@@ -16,6 +16,10 @@ Parameters:
   userdata:
     Type: String
 
+Conditions:
+  IsProd: !Equals [ !Ref env, prod ]
+  IsDev: !Equals [ !Ref env, dev ]
+
 Resources:
   vpc:
     Type: AWS::EC2::VPC
@@ -434,7 +438,7 @@ Resources:
       DBInstanceIdentifier: !Sub
         - lamp-${envtype}
         - { envtype: !Ref env }
-      DBInstanceClass: db.t2.large
+      DBInstanceClass: db.t2.micro
       SourceRegion: ap-southeast-2
       DBSubnetGroupName: "dbsubnetgroup"
       VPCSecurityGroups:
@@ -583,3 +587,6 @@ Resources:
       UserData:
         Fn::Base64:
           Ref: userdata
+    #
+    # privateHostedZone:
+    #   Type: AWS::Route53::HostedZone
