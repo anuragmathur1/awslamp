@@ -1,6 +1,6 @@
 # awslamp
 
-# URL : lamp.<public-hosted-zone-name>/phpinfo.php
+# URL : lamp.public.ext/phpinfo.php
 
 ## The repo is to create a lamp stack
 ## Resources Deployed :
