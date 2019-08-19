@@ -646,3 +646,24 @@ Resources:
       TTL: 300
       ResourceRecords:
       - !GetAtt instancealb.DNSName
+
+Outputs:
+  RDSEndpoint:
+    Value: !GetAtt db.Endpoint.Address
+    Export:
+      Name: RDSEndpoint
+
+  RDSPort:
+    Value: !GetAtt db.Endpoint.Port
+    Export:
+      Name: RDSPort
+
+  RDSRecordSet:
+    Value: !Ref dbRecord
+    Export:
+      Name: dbRecord
+      
+  AppURL:
+    Value: !Ref lampRecord
+    Export:
+      Name: !Ref lampRecord
