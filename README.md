@@ -2,6 +2,13 @@
 
 # URL : lamp.public.ext/phpinfo.php
 
+## Files included : 
+#### lamp.yml : cloudformation template
+#### dev-params.yml : sample parameters file
+#### prod-params.yml : Another parameters file.
+#### deploy.sh : bash script used to deploy the stack
+#### Readme.md : Some useful and usage information about the repo.
+
 ## The repo is to create a lamp stack
 ## Resources Deployed :
 1. VPC
