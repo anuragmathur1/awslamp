@@ -2,7 +2,6 @@
 
 ## The repo is to create a lamp stack
 ## Resources Deployed :
-
 1. VPC
 2. Subnets ( Public and Private )
 3. Route Tables
@@ -20,6 +19,13 @@
 -> Run the script deploy.sh with an argument which is the env name
   Example : ./deploy.sh dev  OR ./deploy.sh prod
 
-# There is a sample parameter file for prod and dev, which has parameters that can be changed.
-# deploy.sh changes the params yml file to a json file
-# The json file is then used with the create-stack and update-stack command for parameter inputs.
+### There is a sample parameter file for prod and dev, which has parameters that can be changed.
+### deploy.sh changes the params yml file to a json file
+### The json file is then used with the create-stack and update-stack command for parameter inputs.
+
+## ToDo : 
+1. Create an Alias for the lamp dns record
+2. Tighten up the SGs
+3. Tighten up NACLs
+4. Least privilige for IAM instance profile
+5. Divide the stack into multiple stacks.
