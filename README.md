@@ -16,9 +16,10 @@
 11. Internal R53 Hosted Zone
 12. R53 record for the ALB and RDS
 
-How To ?
+## How To ?
 -> Run the script deploy.sh with an argument which is the env name
   Example : ./deploy.sh dev  OR ./deploy.sh prod
-There is a sample parameter file for prod and dev, which has parameters that can be changed.
-deploy.sh changes the params yml file to a json file
-The json file is then used with the create-stack and update-stack command for parameter inputs.
+
+# There is a sample parameter file for prod and dev, which has parameters that can be changed.
+# deploy.sh changes the params yml file to a json file
+# The json file is then used with the create-stack and update-stack command for parameter inputs.
