@@ -1,5 +1,7 @@
 # awslamp
 
+# URL : lamp.public.ext/phpinfo.php
+
 ## The repo is to create a lamp stack
 ## Resources Deployed :
 1. VPC
