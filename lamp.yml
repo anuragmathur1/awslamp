@@ -16,11 +16,15 @@ Parameters:
   userdata:
     Type: String
 
+## These conditions can be used to deploy resources in specific Environments
+## Example : MultiAZ RDS in prod  while single AZ RDS for dev
 Conditions:
   IsProd: !Equals [ !Ref env, prod ]
   IsDev: !Equals [ !Ref env, dev ]
 
 Resources:
+
+#####  Deploy VPC and Subnets
   vpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -42,7 +46,7 @@ Resources:
             - - LAMP
               - 'VPC'
               - !Ref env
-
+# Deploy Private subnets
   privatesubneta:
     DependsOn: vpc
     Type: AWS::EC2::Subnet
@@ -100,7 +104,7 @@ Resources:
       - Key: app
         Value: lamp
 
-
+# Deploy Public Subnets
   publicsubneta:
     DependsOn: vpc
     Type: AWS::EC2::Subnet
@@ -158,6 +162,7 @@ Resources:
       - Key: app
         Value: lamp
 
+# Internet Gateway and Route Tables and Subnet Associations
   internetgateway:
     DependsOn : vpc
     Type: AWS::EC2::InternetGateway
@@ -241,6 +246,7 @@ Resources:
       RouteTableId: !Ref privateroutetable
       SubnetId: !Ref privatesubnetc
 
+# Network ACLs and subnet Associations
   networkpublicacl:
     Type: AWS::EC2::NetworkAcl
     Properties:
@@ -367,6 +373,8 @@ Resources:
       NetworkAclId:
           Ref: networkprivateacl
 
+##### Deploying the application stack
+# Instance role
   InstanceRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -428,6 +436,7 @@ Resources:
         - Key: app
           Value: lamp
 
+## RDS Instance with an example of using ssm parameters to retrieve db credentials
   db:
     DependsOn:
       - dbSubnetGroup
@@ -558,9 +567,6 @@ Resources:
         - Ref: publicsubneta
         - Ref: publicsubnetb
         - Ref: publicsubnetc
-      # AvailabilityZones:
-      #   Fn::GetAZs:
-      #     Ref: "AWS::Region"
       DesiredCapacity: 1
       MaxSize: 2
       MinSize: 1
@@ -587,6 +593,56 @@ Resources:
       UserData:
         Fn::Base64:
           Ref: userdata
-    #
-    # privateHostedZone:
-    #   Type: AWS::Route53::HostedZone
+
+  privateHostedZone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      HostedZoneConfig:
+        Comment: "Private Hosted Zone"
+      Name: "int"
+      VPCs:
+        -
+          VPCId: !Ref vpc
+          VPCRegion: !Ref "AWS::Region"
+      HostedZoneTags:
+        -
+          Key: "ZoneType"
+          Value: "Internal"
+        -
+          Key: "Apps"
+          Value: "All Internal"
+
+  publicHostedZone:
+    Type: "AWS::Route53::HostedZone"
+    Properties:
+      HostedZoneConfig:
+        Comment: "Private Hosted Zone"
+      Name: "public.ext."
+      HostedZoneTags:
+        -
+          Key: "ZoneType"
+          Value: "External"
+        -
+          Key: "Apps"
+          Value: "All Public"
+
+## R%3 Hosted zone and record sets
+  dbRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref privateHostedZone
+      Name: !Join ['', ['db', ., 'int', .]]
+      Type: CNAME
+      TTL: 300
+      ResourceRecords:
+      - !GetAtt db.Endpoint.Address
+
+  lampRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref publicHostedZone
+      Name: !Join ['', ['lamp', ., 'public.ext', .]]
+      Type: CNAME
+      TTL: 300
+      ResourceRecords:
+      - !GetAtt instancealb.DNSName
