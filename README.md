@@ -18,9 +18,9 @@
 ## How To ?
 -> Run the script deploy.sh with an argument which is the env name
   Example : 
-  ##### git clone https://github.com/anuragmathur1/awslamp.git
-  ##### cd awslamp
-  ##### ./deploy.sh dev  __OR__ ./deploy.sh prod
+  ##### $git clone https://github.com/anuragmathur1/awslamp.git
+  ##### $cd awslamp
+  ##### $./deploy.sh dev  __OR__ ./deploy.sh prod
 
 ### There is a sample parameter file for prod and dev, which has parameters that can be changed.
 ### deploy.sh changes the params yml file to a json file
